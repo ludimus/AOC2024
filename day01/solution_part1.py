@@ -2,7 +2,6 @@
 
 import sys
 import argparse
-from collections import Counter
 
 def parse_input(filename):
     left_list = []
@@ -18,19 +17,19 @@ def parse_input(filename):
     
     return left_list, right_list
 
-def calculate_similarity_score(left_list, right_list):
-    right_counts = Counter(right_list)
+def calculate_total_distance(left_list, right_list):
+    left_sorted = sorted(left_list)
+    right_sorted = sorted(right_list)
     
-    similarity_score = 0
-    for num in left_list:
-        count_in_right = right_counts.get(num, 0)
-        score_contribution = num * count_in_right
-        similarity_score += score_contribution
+    total_distance = 0
+    for left_val, right_val in zip(left_sorted, right_sorted):
+        distance = abs(left_val - right_val)
+        total_distance += distance
         
-    return similarity_score
+    return total_distance
 
 def main():
-    parser = argparse.ArgumentParser(description='Day 1 Part 2: Calculate similarity score between lists')
+    parser = argparse.ArgumentParser(description='Day 1 Part 1: Calculate total distance between lists')
     parser.add_argument('--test', action='store_true', help='Run with example.txt instead of input.txt')
     parser.add_argument('--debug', action='store_true', help='Enable debug output')
     
@@ -46,21 +45,14 @@ def main():
     if args.debug or args.test:
         print(f"Left list: {left_list}")
         print(f"Right list: {right_list}")
-        right_counts = Counter(right_list)
-        print(f"Right list counts: {dict(right_counts)}")
-        
-        print("\nSimilarity calculation:")
-        total = 0
-        for num in left_list:
-            count = right_counts.get(num, 0)
-            contribution = num * count
-            total += contribution
-            print(f"  {num} appears {count} times: {num} * {count} = {contribution}")
-        print(f"Total similarity score: {total}")
+        print(f"Sorted left: {sorted(left_list)}")
+        print(f"Sorted right: {sorted(right_list)}")
     
-    result = calculate_similarity_score(left_list, right_list)
+    result = calculate_total_distance(left_list, right_list)
     
-    if not (args.debug or args.test):
+    if args.debug or args.test:
+        print(f"Total distance: {result}")
+    else:
         print(result)
 
 if __name__ == "__main__":

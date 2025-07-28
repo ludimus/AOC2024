@@ -1,9 +1,24 @@
 # Day 8: Resonant Collinearity - Strategy Plan
 
 ## Problem Understanding
-- **Goal**: Count unique antinode locations within map bounds
-- **Input**: 51x51 grid with antennas (letters/digits) and empty spaces (.)
-- **Antinode Rule**: For each pair of same-frequency antennas, antinodes occur where one antenna is twice as far as the other
+- Grid map with antennas marked by lowercase letters, uppercase letters, or digits
+- Antennas of same frequency create antinodes at specific positions
+- Antinode occurs when one antenna is twice as far away as the other on the same line
+- For each pair of same-frequency antennas, there are 2 antinodes (one on each side)  
+- Count unique antinode locations within map bounds
+
+## Key Rules
+1. Antinodes only form between antennas of the same frequency
+2. Antinodes are collinear with the antenna pair
+3. One antenna must be exactly twice as far from the antinode as the other
+4. Antinodes can overlap with antenna positions
+5. Only count antinodes within the map boundaries
+
+## Antinode Calculation
+For two antennas at positions (r1, c1) and (r2, c2):
+- Vector from antenna1 to antenna2: (dr, dc) = (r2-r1, c2-c1)
+- Antinode1 (beyond antenna2): (r2 + dr, c2 + dc)
+- Antinode2 (beyond antenna1): (r1 - dr, c1 - dc)
 
 ## Data Structures
 1. **Antenna Dictionary**: `frequency -> list of (row, col) positions`
@@ -114,12 +129,53 @@ for (r1, c1), (r2, c2) in combinations(positions, 2):
         c -= dc
 ```
 
-## Results
-- **Part 1**: 341 unique antinodes (2x distance rule)
-- **Part 2**: 1134 unique antinodes (continuous lines + antenna positions)
-- **Example verification**: 14 → 34 ✅
+---
 
-## Key Insights
-- Part 2 doesn't need GCD reduction - original vector spacing works
-- Antenna positions become antinodes when 2+ same-frequency antennas exist
-- Simple line extension in both directions captures all required positions
+# Part 1 Results ✅
+- **Test case**: 14 unique antinodes (expected)
+- **Actual input**: 341 unique antinodes (accepted answer)
+- **Implementation**: Discrete antinode calculation with 2x distance rule
+
+# Part 2 Results ✅  
+- **Test case**: 34 unique antinodes (expected, up from 14)
+- **Actual input**: 1134 unique antinodes (accepted answer, up from 341)
+- **Implementation**: Continuous line extension + antenna positions as antinodes
+
+---
+
+# Part 2: Resonant Harmonics
+
+## Key Changes from Part 1
+1. **New Rule**: Antinodes occur at ANY grid position exactly in line with 2+ same-frequency antennas
+2. **No Distance Limit**: Not just 2x distance, but entire collinear lines
+3. **Antenna Positions**: Antennas themselves become antinodes (if 2+ same frequency exist)
+4. **Expected Results**: Example should go from 14 → 34
+
+## Part 2 Algorithm
+1. **For each frequency with 2+ antennas**:
+   - Add all antenna positions as antinodes
+   - For each pair of antennas, extend the line in both directions until out of bounds
+2. **Line Extension**: 
+   - Calculate displacement vector (dr, dc)
+   - Walk forward: (r2+dr, c2+dc), (r2+2*dr, c2+2*dc), ...
+   - Walk backward: (r1-dr, c1-dc), (r1-2*dr, c1-2*dc), ...
+   - Continue until out of bounds
+
+## Implementation Changes
+```python
+# Part 1: Only 2 specific antinodes per pair
+antinode1 = (r1 - dr, c1 - dc)
+antinode2 = (r2 + dr, c2 + dc)
+
+# Part 2: All positions along the line
+# Add antenna positions themselves
+for pos in positions:
+    antinodes.add(pos)
+
+# Extend lines in both directions
+r, c = r2 + dr, c2 + dc
+while 0 <= r < rows and 0 <= c < cols:
+    antinodes.add((r, c))
+    r += dr
+    c += dc
+```

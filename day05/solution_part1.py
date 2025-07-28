@@ -41,47 +41,20 @@ def is_correctly_ordered(update, rules):
     
     return True
 
-def should_swap(page_a, page_b, rules):
-    """Check if page_a and page_b need to be swapped based on rules.
-    Returns True if page_a should come after page_b."""
-    # If there's a rule saying page_b must come before page_a, then swap
-    return (page_b, page_a) in rules
-
-def bubble_sort_with_rules(pages, rules):
-    """Sort pages using bubble sort with custom ordering rules."""
-    n = len(pages)
-    sorted_pages = pages.copy()
-    
-    # Bubble sort: repeatedly go through the list and swap adjacent elements if out of order
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if should_swap(sorted_pages[j], sorted_pages[j + 1], rules):
-                # Swap the elements
-                sorted_pages[j], sorted_pages[j + 1] = sorted_pages[j + 1], sorted_pages[j]
-    
-    return sorted_pages
-
 def get_middle_page(update):
     """Get the middle page number from an update."""
     return update[len(update) // 2]
 
-def solve_part2(rules, updates):
-    """Fix incorrectly ordered updates and sum their middle page numbers."""
+def solve_part1(rules, updates):
+    """Find correctly ordered updates and sum their middle page numbers."""
     middle_page_sum = 0
-    incorrect_updates = []
-    corrected_updates = []
     
     for update in updates:
-        if not is_correctly_ordered(update, rules):
-            # This update is incorrectly ordered, so fix it
-            corrected_update = bubble_sort_with_rules(update, rules)
-            middle_page = get_middle_page(corrected_update)
+        if is_correctly_ordered(update, rules):
+            middle_page = get_middle_page(update)
             middle_page_sum += middle_page
-            
-            incorrect_updates.append(update)
-            corrected_updates.append(corrected_update)
     
-    return middle_page_sum, incorrect_updates, corrected_updates
+    return middle_page_sum
 
 def main():
     # Check command line arguments
@@ -101,16 +74,21 @@ def main():
         print("Sample updates:", updates[:3])
         print()
     
-    result, incorrect, corrected = solve_part2(rules, updates)
+    result = solve_part1(rules, updates)
     
     if debug_mode:
-        print("Incorrectly ordered updates and their corrections:")
-        for i, (original, fixed) in enumerate(zip(incorrect, corrected)):
-            middle = get_middle_page(fixed)
-            print(f"  {original} -> {fixed} (middle: {middle})")
-        print(f"\nSum of middle pages from corrected updates: {result}")
+        print("Checking each update:")
+        for update in updates:
+            is_correct = is_correctly_ordered(update, rules)
+            status = "✓ CORRECT" if is_correct else "✗ INCORRECT"
+            if is_correct:
+                middle = get_middle_page(update)
+                print(f"  {update} -> {status} (middle: {middle})")
+            else:
+                print(f"  {update} -> {status}")
+        print(f"\nSum of middle pages: {result}")
     elif test_mode:
-        print(f"Sum of middle pages from corrected updates: {result}")
+        print(f"Sum of middle pages from correctly ordered updates: {result}")
     else:
         print(result)
 

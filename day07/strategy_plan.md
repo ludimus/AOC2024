@@ -1,164 +1,93 @@
 # Day 7: Bridge Repair - Strategy Plan
 
-## Problem Analysis
-- **Goal**: Determine which calibration equations can be made true by inserting operators
-- **Part 1 Operators**: `+` (addition) and `*` (multiplication)
-- **Part 2 Operators**: `+`, `*`, and `||` (concatenation)
-- **Evaluation**: Left-to-right, no precedence rules
-- **Constraints**: Numbers cannot be rearranged
-- **Output**: Sum of all achievable test values
+## Problem Understanding
+- Each line has a test value before the colon and numbers after
+- Need to determine if operators (+, *) can be placed between numbers to produce the test value
+- Operators are evaluated left-to-right (no precedence rules)
+- Numbers cannot be rearranged
+- Sum all test values from equations that can be made true
 
 ## Data Structures
+1. **Equation class/tuple**: Store test value and list of numbers
+2. **List of equations**: Parse all input lines into this structure
 
-### Input Parsing (Optimized)
-```python
-# Simple tuple approach instead of class
-def parse_input(filename: str) -> List[Tuple[int, List[int]]]:
-    equations = []
-    for line in file:
-        target_str, numbers_str = line.split(':', 1)
-        target = int(target_str.strip())
-        numbers = [int(x) for x in numbers_str.strip().split()]
-        equations.append((target, numbers))
-    return equations
+## Algorithm Approach (Recursive)
+1. **Parse input**: Split each line by ':' to get test value and numbers
+2. **Recursive evaluation**: Build result left-to-right, trying both operators at each step
+   - Base case: If only one number left, check if it equals target
+   - Recursive case: Try both '+' and '*' with first two numbers, recurse with remaining
+3. **Early termination**: Stop recursion if current result exceeds target (optimization)
+4. **Sum results**: Add test values of all valid equations
+
+## Functions Needed
+1. `parse_input(filename)`: Parse input file into list of (test_value, numbers) tuples
+2. `can_be_solved_recursive(target, current_result, remaining_numbers)`: Recursive solver
+3. `can_be_solved(test_value, numbers)`: Wrapper function
+4. `solve_part1(filename)`: Main function to solve the problem
+
+## Recursive Logic
+- `can_be_solved_recursive(target, current, [next, ...rest])`
+  - Try addition: `can_be_solved_recursive(target, current + next, rest)`
+  - Try multiplication: `can_be_solved_recursive(target, current * next, rest)`
+  - Return True if either path succeeds
+
+## Time Complexity
+- Still O(2^n) worst case, but with early pruning and cleaner logic
+- Much more readable and follows the left-to-right evaluation naturally
+
+---
+
+# Part 2 Changes
+
+## New Operator: Concatenation (||)
+- Concatenation operator combines digits from left and right inputs
+- Example: 12 || 345 = 12345
+- All operators still evaluated left-to-right
+
+## Updated Algorithm for Part 2
+The recursive approach remains the same, but now we have three operators to try:
+- Addition (+)
+- Multiplication (*)
+- Concatenation (||)
+
+## Implementation Changes
+1. **Concatenation function**: `concatenate(a, b)` returns `int(str(a) + str(b))`
+2. **Updated recursion**: Try all three operators at each step
+3. **Time complexity**: Now O(3^n) instead of O(2^n)
+
+## Functions to Update
+- `can_be_solved_recursive()`: Add third branch for concatenation
+- Early termination still applies (concatenation only makes numbers larger)
+
+## Expected Results
+- Part 1 example result: 3749 (3 valid equations)
+- Part 2 example result: 11387 (6 valid equations total)
+- New valid equations in part 2:
+  - 156: 15 || 6 = 156
+  - 7290: 6 * 8 || 6 * 15 = 7290
+  - 192: 17 || 8 + 14 = 192
+
+---
+
+# Implementation Status
+
+## ✅ Completed Files
+- `strategy_plan.md`: Complete strategy and algorithm documentation
+- `example.txt`: Test data extracted from problem description
+- `solution_part1.py`: Recursive solution with +, * operators
+- `solution_part2.py`: Extended solution with +, *, || operators
+
+## ✅ Key Features Implemented
+- Recursive left-to-right evaluation approach (no brute force iteration)
+- Early termination optimization when result exceeds target
+- Command-line options for testing and debug modes
+- Proper input parsing and error handling
+- Clean, readable code following established patterns
+
+## 🧪 Testing Commands
+```bash
+python3 solution_part1.py --test  # Expected: 3749
+python3 solution_part2.py --test  # Expected: 11387
+python3 solution_part1.py         # Run on actual input
+python3 solution_part2.py         # Run on actual input
 ```
-
-### Core Data Types
-- `target`: int - The test value we want to achieve
-- `numbers`: List[int] - The operands in order
-- Return format: `List[Tuple[int, List[int]]]` for memory efficiency
-
-## Algorithm Approaches
-
-### ❌ Brute Force Approach (Initial Implementation)
-**Strategy**: Generate all operator combinations and test each one
-**Complexity**: 
-- Part 1: O(2^n) per equation
-- Part 2: O(3^n) per equation
-
-**Performance Results**:
-- Part 1: 0.244 seconds for 850 equations
-- Part 2: 22.194 seconds for 850 equations
-
-### ✅ Optimized Reverse Engineering (Final Implementation)
-**Strategy**: Work backwards from the target to find valid operator sequences
-
-**Key Insight**: Instead of asking "What operators make this work?", ask "What could the previous result have been?"
-
-#### Reverse Engineering Algorithm
-```python
-def can_make_target_reverse(target: int, numbers: List[int]) -> bool:
-    if len(numbers) == 1:
-        return target == numbers[0]
-    
-    last_num = numbers[-1]
-    remaining = numbers[:-1]
-    
-    # Try each possible last operation:
-    
-    # Case 1: ... + last_num = target
-    if target >= last_num:
-        if can_make_target_reverse(target - last_num, remaining):
-            return True
-    
-    # Case 2: ... * last_num = target  
-    if target % last_num == 0:
-        if can_make_target_reverse(target // last_num, remaining):
-            return True
-    
-    # Case 3 (Part 2): ... || last_num = target
-    if target_str.endswith(last_str) and len(target_str) > len(last_str):
-        new_target = int(target_str[:-len(last_str)])
-        if can_make_target_reverse(new_target, remaining):
-            return True
-    
-    return False
-```
-
-## Detailed Examples
-
-### Example 1: `190: [10, 19]` (Part 1)
-
-**Brute Force**: Try 2^1 = 2 combinations
-- `10 + 19 = 29` ≠ 190
-- `10 * 19 = 190` ✓
-
-**Reverse Engineering**:
-1. `? op 19 = 190`
-2. Try `? + 19 = 190` → `? = 171` → Check if `[10]` can make 171 → No
-3. Try `? * 19 = 190` → `? = 10` → Check if `[10]` can make 10 → Yes ✓
-
-### Example 2: `7290: [6, 8, 6, 15]` (Part 2)
-
-**Brute Force**: Try 3^3 = 27 combinations
-**Reverse Engineering**:
-1. `? op 15 = 7290`
-2. Try `? + 15 = 7290` → `? = 7275` → Try with `[6,8,6]` → No solution
-3. Try `? * 15 = 7290` → `? = 486` → Try with `[6,8,6]` → Continue...
-4. `? op 6 = 486`
-5. Try `? || 6 = 486` → `? = 48` → Try with `[6,8]` → Continue...
-6. `? op 8 = 48`
-7. Try `? * 8 = 48` → `? = 6` → Check if `[6]` can make 6 → Yes ✓
-
-**Solution**: `6 * 8 || 6 * 15 = 48 || 6 * 15 = 486 * 15 = 7290`
-
-### Example 3: `156: [15, 6]` (Part 2 only)
-
-**Part 1 Analysis**:
-1. `? op 6 = 156`
-2. Try `? + 6 = 156` → `? = 150` → Check if `[15]` can make 150 → No
-3. Try `? * 6 = 156` → `? = 26` → Check if `[15]` can make 26 → No
-4. **Result**: Impossible in Part 1
-
-**Part 2 Analysis**:
-1. `? op 6 = 156`
-2. Try `? + 6 = 156` → No
-3. Try `? * 6 = 156` → No  
-4. Try `? || 6 = 156` → `? = 15` → Check if `[15]` can make 15 → Yes ✓
-
-**Solution**: `15 || 6 = 156`
-
-## Performance Comparison
-
-| Approach | Part 1 Time | Part 2 Time | Part 1 Speedup | Part 2 Speedup |
-|----------|-------------|-------------|----------------|----------------|
-| Brute Force | 0.244s | 22.194s | 1x | 1x |
-| Reverse Engineering | 0.008s | 0.023s | **30.5x** | **965x** |
-
-## Complexity Analysis
-
-### Brute Force
-- **Part 1**: O(2^n) combinations per equation
-- **Part 2**: O(3^n) combinations per equation
-- **Space**: O(1) for evaluation
-
-### Reverse Engineering  
-- **Part 1**: O(2n) operations per equation (worst case)
-- **Part 2**: O(3n) operations per equation (worst case)
-- **Space**: O(n) for recursion stack
-- **Key Advantage**: Heavy pruning eliminates most branches early
-
-## Implementation Strategy (Optimized)
-
-1. **Parse Input**: Use tuples instead of classes for memory efficiency
-2. **Reverse Engineering**: Work backwards from target
-3. **Early Pruning**: Invalid operations rejected immediately
-4. **Recursive Structure**: Clean, readable code with logarithmic depth
-5. **Performance Monitoring**: Track equations per second
-
-## Part 2 Specific Considerations
-
-### Concatenation Operator (`||`)
-- **Mathematical representation**: `a || b = int(str(a) + str(b))`
-- **Reverse operation**: If `target` ends with `b`'s digits, then `a = target[:-len(str(b))]`
-- **Example**: `1234 || 567 = 1234567`, so if target=1234567 and b=567, then a=1234
-
-### Performance Impact
-- Adds third branch to recursion
-- Still maintains linear complexity due to aggressive pruning
-- 965x speedup proves the optimization is extremely effective
-
-## Final Results
-- **Part 1 Answer**: 21,572,148,763,543
-- **Part 2 Answer**: 581,941,094,529,163
-- **Achievable Rate**: Part 1: 32.7%, Part 2: 66.1%

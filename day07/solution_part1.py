@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import argparse
 
 def parse_input(filename):
@@ -16,10 +17,6 @@ def parse_input(filename):
             equations.append((test_value, numbers))
     return equations
 
-def concatenate(a, b):
-    """Concatenate two numbers by combining their digits"""
-    return int(str(a) + str(b))
-
 def can_be_solved_recursive(target, current, remaining_numbers):
     """Recursively check if target can be reached with remaining numbers"""
     # Base case: no more numbers to process
@@ -27,7 +24,7 @@ def can_be_solved_recursive(target, current, remaining_numbers):
         return current == target
     
     # Early termination: if current result already exceeds target, stop
-    # (since we only have +, *, and || operations, result can only grow)
+    # (since we only have + and * operations, result can only grow)
     if current > target:
         return False
     
@@ -42,10 +39,6 @@ def can_be_solved_recursive(target, current, remaining_numbers):
     if can_be_solved_recursive(target, current * next_num, rest):
         return True
     
-    # Try concatenation
-    if can_be_solved_recursive(target, concatenate(current, next_num), rest):
-        return True
-    
     return False
 
 def can_be_solved(test_value, numbers):
@@ -56,8 +49,8 @@ def can_be_solved(test_value, numbers):
     # Start recursion with first number as current result
     return can_be_solved_recursive(test_value, numbers[0], numbers[1:])
 
-def solve_part2(filename, debug=False):
-    """Main function to solve part 2"""
+def solve_part1(filename, debug=False):
+    """Main function to solve part 1"""
     equations = parse_input(filename)
     
     if debug:
@@ -81,7 +74,7 @@ def solve_part2(filename, debug=False):
     return total_calibration_result
 
 def main():
-    parser = argparse.ArgumentParser(description='Day 7: Bridge Repair - Part 2')
+    parser = argparse.ArgumentParser(description='Day 7: Bridge Repair - Part 1')
     parser.add_argument('--test', action='store_true', help='Run on example.txt instead of input.txt')
     parser.add_argument('--debug', action='store_true', help='Enable debug output')
     
@@ -90,7 +83,7 @@ def main():
     filename = 'example.txt' if args.test else 'input.txt'
     debug = args.debug or args.test  # Enable debug by default when testing
     
-    result = solve_part2(filename, debug)
+    result = solve_part1(filename, debug)
     print(f"Total calibration result: {result}")
 
 if __name__ == "__main__":

@@ -86,11 +86,38 @@ def count_xmas_regex(lines):
     return count
 
 def main():
-    filename = 'input.txt'
+    # Check command line arguments
+    test_mode = '--test' in sys.argv
+    debug_mode = '--debug' in sys.argv
+    
+    filename = 'example.txt' if test_mode else 'input.txt'
+    
+    if debug_mode:
+        print(f"Reading from: {filename}")
+    
     grid = parse_input(filename)
+    
+    if debug_mode:
+        print(f"Grid dimensions: {len(grid)}x{len(grid[0])}")
+        print("Grid:")
+        for row in grid:
+            print(''.join(row))
+        print()
+    
     lines = extract_all_lines(grid)
+    
+    if debug_mode:
+        print(f"Extracted {len(lines)} lines:")
+        for i, line in enumerate(lines):
+            print(f"{i:2d}: {line}")
+        print()
+    
     result = count_xmas_regex(lines)
-    print(result)
+    
+    if test_mode or debug_mode:
+        print(f"XMAS appears {result} times")
+    else:
+        print(result)
 
 if __name__ == "__main__":
     main()

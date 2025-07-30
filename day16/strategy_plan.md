@@ -120,3 +120,34 @@ def dijkstra(grid, start_pos, end_pos):
 - Part 2: Modified Dijkstra tracking all predecessors, then backtrack from optimal end states
 - Key insight: State space must include direction since rotation costs differ from movement
 - Both solutions handle multiple optimal paths correctly
+
+## Why heapq Instead of Standard Data Structures?
+
+**Dijkstra's algorithm requires a priority queue** to always process the lowest-cost unvisited state first. This greedy approach guarantees optimal paths.
+
+**Python's standard alternatives and why they fail:**
+
+1. **Regular list with sorting**:
+   - Inserting in sorted order: O(n) per insertion
+   - With thousands of states, this becomes extremely slow
+   - heapq provides O(log n) insertion instead
+
+2. **deque (collections.deque)**:
+   - Only supports FIFO/LIFO ordering, no priority
+   - Would give breadth-first search, not Dijkstra
+   - BFS doesn't guarantee optimal paths when edge weights differ (1 vs 1000 cost)
+
+3. **set**:
+   - No ordering capability at all
+   - Cannot efficiently retrieve minimum-cost element
+
+**What heapq provides:**
+- `heappush()`: O(log n) to insert with priority
+- `heappop()`: O(log n) to extract minimum element  
+- Maintains heap property automatically (parent ≤ children)
+
+**Critical for this maze problem:**
+- Moving costs 1 point, rotating costs 1000 points
+- Must explore cheaper paths first to guarantee optimality
+- ~20,000 possible states (141×141 grid × 4 directions) require efficient operations
+- Without proper priority ordering: wrong answers or terrible performance

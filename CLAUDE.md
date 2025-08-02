@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to  when working with code in this repository.
 
 ## Project Overview
 
@@ -27,10 +27,7 @@ python3 solution_part2.py
 ### Testing Solutions
 - extract the provided example data from  into `example.txt`
 - Use `example.txt`  files for testing before running on actual input
-- Testingmode should be selectable with a command line switch
-- Testingmode should be done on example.txt
-- Testingmode should should print debug statements by default.
-- Debug mode should be selectable with a command line switch when running on the actual challenge data
+- Testingmode should be done on example.txta
 - For speed testing use the bash command 'time'
 
 ## Code Patterns
@@ -43,9 +40,11 @@ python3 solution_part2.py
 
 When adding new solutions or modifying existing ones:
 1. Follow the established naming convention (`solution_part1.py`, `solution_part2.py`)
-2. Ensure solutions can read from the standard input files (`input.txt`, `example.txt`)
+2. Ensure solutions can read from the standard input files with a command line switch(`input.txt`, `example.txt`)
 3. Include appropriate comments explaining the algorithm approach
 4. Test with example input before running on actual puzzle input
 5. Use Python 3 syntax and features
-6. Before coding, make a plan, explain datastructures to use, functions needed. store `strategy_plan.md` in the dayxx folder
-7. when a challenge is accepted. Change woking directory to main folder, add everything to GIT, commit with a descriptive message and push to remote
+6. Before any coding, make a plan, explain datastructures to use, the functions needed. store this in a file  `strategy_plan.md` in the dayxx folder
+7. The dayxx folders have file with the solution to the challenges part1_solution.txt and part2_solution.txt.
+8. test teh code against these solutions.
+7. when a challenge is accepted. Change woking directory to main folder, add everything to GIT, commit with a descriptive message.

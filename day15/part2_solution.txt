@@ -1,0 +1,1 @@
+Sum of GPS coordinates: 1437468

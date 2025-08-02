@@ -1,0 +1,11 @@
+=== DIRECT METHOD (Modular Arithmetic) ===
+Safety Factor: 226179492
+Execution Time: 0.000224 seconds
+
+=== STEPWISE METHOD (Simulation) ===
+Safety Factor: 226179492
+Execution Time: 0.006296 seconds
+
+=== COMPARISON ===
+Results match: True
+Speed improvement: 28.1x faster (direct method)
